@@ -51,21 +51,25 @@ if [ -z "$($gcloud container node-pools describe $NODE_POOL $location_filter --c
 fi
 
 # Wait for the creation of the new node pool
+# Wait for 2 minutes to give up the retry when this is a destruction of the node pool
+counter=0
 new_node_pool=""
-while [ -z $new_node_pool ]
-do
+while [ -z $new_node_pool ] && [ "${counter}" -lt 12 ]; do
   new_node_pool="$($gcloud container node-pools list $location_filter --cluster=$CLUSTER --project=$PROJECT --filter="""name~^$NODE_POOL_PREFIX-* AND name!=$NODE_POOL""" --limit=1 --format='value(name)')"
   echo "Waiting for creation of the new node pool"
   sleep 10
+  counter=$((counter+1))
 done
-echo "Node pool $new_node_pool is created"
 
-# Wait until the new node pool is ready
-while [ "$($gcloud container node-pools describe $new_node_pool $location_filter --cluster=$CLUSTER --project=$PROJECT --format='value(status)')" != "RUNNING" ]
-do
-  echo "Waiting for the new node pool $new_node_pool to be ready..."
-  sleep 10
-done
+if [ -n "$new_node_pool" ]; then
+  echo "Node pool $new_node_pool is created"
+  # Wait until the new node pool is ready
+  while [ "$($gcloud container node-pools describe $new_node_pool $location_filter --cluster=$CLUSTER --project=$PROJECT --format='value(status)')" != "RUNNING" ]
+  do
+    echo "Waiting for the new node pool $new_node_pool to be ready..."
+    sleep 10
+  done
+fi
 
 # Disable autoscaling, otherwise it could autoscale up the original node pool and schedule pods to it
 echo "Disabling autoscaling for the original node pool..."
