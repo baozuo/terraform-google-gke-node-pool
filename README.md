@@ -1,10 +1,17 @@
 # Terraform GKE Node Pool Module
-This module handles node pool creation in Google Kubernetes Engine (GKE). One major pain point from maintaining a GKE node pool
+This module handles node pool creation in Google Kubernetes Engine (GKE). One major pain point in maintaining a GKE node pool is that sometimes changes would result in a recreation which brings downtime if you don't handle it manually. Google has an [instruction documentation](https://cloud.google.com/kubernetes-engine/docs/tutorials/migrating-node-pool) on how to do it manually.
+
+This module makes it possible to update everything of a node pool without downtime.
 
 ## Requirements
 - Terraform version >= 0.12.
 - `gcloud` and `kubectl` are installed on or you have network connectivity from the machine where Terraform is executed.
 - `GOOGLE_CREDENTIALS` environment variable has to be configured if `gcloud` is not installed, [reference here](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#full-reference).
+
+## Features
+- `autoscaling` is enabled
+- `create_before_destroy` is enabled
+- Most commonly used arguments are configurable
 
 ## Usage
 
