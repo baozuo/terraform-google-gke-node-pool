@@ -1,7 +1,7 @@
 # Terraform GKE Node Pool Module
 This module handles node pool creation in Google Kubernetes Engine (GKE). One major pain point in maintaining a GKE node pool is that sometimes changes would result in a recreation which brings downtime if you don't handle it manually. Google has an [instruction documentation](https://cloud.google.com/kubernetes-engine/docs/tutorials/migrating-node-pool) on how to do it manually.
 
-This module makes it possible to update everything of a node pool without downtime.
+This module makes it possible to update everything of a node pool without downtime. It's available in [Terraform registry](https://registry.terraform.io/modules/baozuo/gke-node-pool/google).
 
 ## Requirements
 - Terraform version >= 0.12.
@@ -17,7 +17,7 @@ This module makes it possible to update everything of a node pool without downti
 
 ```
 module "gke-node-pool" {
-  source      = "github.com/baozuo/terraform-google-gke-node-pool"
+  source      = "baozuo/gke-node-pool/google"
   project     = "YOUR-GCP-PROJECT-ID"
   cluster     = "GKE-CLUSTER-NAME"
   location    = "us-central1"
