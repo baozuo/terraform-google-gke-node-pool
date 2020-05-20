@@ -18,6 +18,7 @@ resource "random_id" "node_pool_name" {
 }
 
 resource "google_container_node_pool" "node_pool" {
+  provider           = google-beta
   name               = random_id.node_pool_name.hex
   project            = var.project
   location           = var.location

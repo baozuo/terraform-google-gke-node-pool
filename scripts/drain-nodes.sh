@@ -18,7 +18,7 @@ TMPDIR=/tmp/$RANDOM
 # Remove the temporary folder which contains gcloud, kubectl and service account key
 function cleanup {
   cd /tmp
-  rm -rf "${TMPDIR}"
+  rm -rf "$TMPDIR"
 }
 trap cleanup EXIT
 
@@ -29,11 +29,11 @@ gcloud=gcloud
 if [ -z "$(which gcloud)" ]; then
   curl -sO https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz
   tar zxf google-cloud-sdk.tar.gz
-  if [ -z "${GOOGLE_CREDENTIALS}" ]; then
+  if [ -z "$GOOGLE_CREDENTIALS" ]; then
     echo "GOOGLE_CREDENTIALS is not defined, exiting"
     exit 1
   fi
-  echo "${GOOGLE_CREDENTIALS}" > /$TMPDIR/service_account.json
+  echo "$GOOGLE_CREDENTIALS" > /$TMPDIR/service_account.json
   ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=/$TMPDIR/service_account.json
   gcloud=./google-cloud-sdk/bin/gcloud
 fi
@@ -54,7 +54,7 @@ fi
 # Wait for 2 minutes to give up the retry when this is a destruction of the node pool
 counter=0
 new_node_pool=""
-while [ -z $new_node_pool ] && [ "${counter}" -lt 12 ]; do
+while [ -z $new_node_pool ] && [ "$counter" -lt 12 ]; do
   new_node_pool="$($gcloud container node-pools list $location_filter --cluster=$CLUSTER --project=$PROJECT --filter="""name~^$NODE_POOL_PREFIX-* AND name!=$NODE_POOL""" --limit=1 --format='value(name)')"
   echo "Waiting for creation of the new node pool"
   sleep 10
@@ -85,13 +85,13 @@ fi
 
 # Mark nodes in the original node pool as unschedulable
 echo "Cordoning nodes..."
-for node in $(./kubectl get nodes -l cloud.google.com/gke-nodepool=${NODE_POOL} -o=name); do
+for node in $($kubectl get nodes -l cloud.google.com/gke-nodepool=$NODE_POOL -o=name); do
   $kubectl cordon "$node";
 done
 
 # Drain the nodes one by one in the original node pool
 echo "Draining nodes..."
-for node in $(./kubectl get nodes -l cloud.google.com/gke-nodepool=${NODE_POOL} -o=name); do
+for node in $($kubectl get nodes -l cloud.google.com/gke-nodepool=$NODE_POOL -o=name); do
   echo "Draining node $node"
   $kubectl drain --force --ignore-daemonsets --delete-local-data "$node"
   # Wait for the pods to be scheduled before draining the next node
